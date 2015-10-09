@@ -18,27 +18,39 @@ class udpoutthread (threading.Thread):
 		print("Closing UDP thread...")
 
 class heartbeat(threading.Thread):
-	def __init__(self, threadID, name, UDP_IP, sock):
+	def __init__(self, UDP_IP):
 		threading.Thread.__init__(self)
-		self.threadID = threadID
-		self.name = name
 		self.UDP_IP = UDP_IP
-		self.sock = sock
+		self.sock = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )
 		self.UDP_PORT = 1392
 		self.MESSAGE = "badum"
-		self.stayopen = 1
-		self.starttime = time.time()
+		self.paused = True
+		self.state = threading.Condition()
+		self.time = int(time.time())
+		self.lasttime = int(time.time())
 
 	def run(self):
-		print("Heart beating...")
-		while(self.stayopen):
-			if( self.starttime % 3 == 0 ):
-				self.sock.sendto( bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))
-		print("Heart stopped.")
-		return
-	def close(self):
-		self.stayopen = 0
-		return
+		self.resume()
+		while True:
+			with self.state:
+				if self.paused:
+					self.state.wait()
+			self.time = int(time.time())
+			if( (self.time % 3 == 0) & (self.time != self.lasttime) ):
+				udpsend( self.UDP_IP, self.UDP_PORT, self.MESSAGE, self.sock )
+				self.lasttime = self.time
+
+	def pause(self):
+		with self.state:
+			self.paused = True
+			self.state.notify()
+			print("Heart stopped.")
+
+	def resume(self):
+		with self.state:
+			self.paused = False
+			self.state.notify()
+			print("Heart beating...")
 
 class udplisten(threading.Thread):
 	def __init__(self, UDP_IP, UDP_PORT):
@@ -51,16 +63,10 @@ class udplisten(threading.Thread):
 	def run(self):
 		print("Listening...")
 		self.sock.bind(("", self.UDP_PORT))
-		while(self.stayopen):
+		while True:
 			(data, addr) = self.sock.recvfrom(1024)
 			print(data)
-		print("No longer listening.")
 		return
-
-	def close(self):
-		self.stayopen = 0
-		return
-
 
 def udpsend(UDP_IP, UDP_PORT, MESSAGE, outsock):
 	outsock.sendto( bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))
