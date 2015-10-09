@@ -29,7 +29,11 @@ module Heartbeat
 	# This should be called each time we receive a heartbeat message
 	def Heartbeat.heardFrom(host)
 		$heartLock.synchronize {
-			$clients[host] += 1
+			puts "Heard from: " + host[0].to_s
+			$clients[host] = 0
+			if( $clients.size == 1 )
+				Clock.start
+			end
 		}
 	end
 
@@ -49,7 +53,7 @@ module Heartbeat
 	# This should be called *once* on a dedicated thread
 	def Heartbeat.updateClients
 		u = UDPSocket.new
-		u.bind(Configuration::BindAddress, Configuration::BindPort)
+		u.bind(Configuration::BindAddress, 0)
 		puts "Ready to send updates."
 		while(true)
 			update = $updates.pop

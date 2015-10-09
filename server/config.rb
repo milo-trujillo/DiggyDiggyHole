@@ -12,12 +12,16 @@ module Configuration
 	DefaultDwarves = 7
 
 	# All timers or time related constants
-	TurnDuration = 1 # How many seconds per turn
-	ClientTimeout = 10 # How many seconds until client is purged
+	TurnDuration = 1        # How many seconds per turn
+	ClientTimeout = 10      # How many seconds until client is purged
 
 	# Networking constants
 	BindAddress = "0.0.0.0" # Bind to all addresses
-	BindPort = 1392 # "DiggyDiggyHole" ascii values added together
+	BindPort = 1392         # "DiggyDiggyHole" ascii values added together
+	MaxMessageLength = 512  # Maximum byte size of any message
+
+	# Threading constants (sizes of threadpools)
+	MessageWorkers = 3      # How many threads should handle messages
 
 	# Paths
 	StateDir = "./state"
