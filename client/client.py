@@ -17,20 +17,20 @@ def initialize():
 		response = input("Would you like to use the previous server config? [Y/N]")
 
 		#if they don't put a Y or N in, we keep asking
-		while(	( response != "yes" ) & ( response.lower() != "no" ) & 
+		while(	( response.lower() != "yes" ) & ( response.lower() != "no" ) & 
 						(	response.lower() != "y" ) & ( response.lower() != "n" )	):
 			print("Invalid response, please enter Y or N.")
 			response = input("Would you like to use the previous server config? [Y/N]")
 		
 		#if they want to use their previous config, we load that
-		if( response == "Y" ):
+		if( ( response.lower() == "y") | (response.lower() == "yes" ) ):
 			conffile = open("prevconfig","r")
 			ip = conffile.read()
 			conffile.close()
 			return ip
 		
 		#otherwise we ask for a new ip to use
-		elif( response == "N" ):
+		elif( ( response.lower() == "n" ) | ( response.lower() == "no" ) ):
 			ip = input('Please enter server ip: ')
 			conffile = open("prevconfig","w")
 			conffile.write(ip)
