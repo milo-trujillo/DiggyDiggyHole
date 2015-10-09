@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os.path
+from os import _exit
 import socket
 import time
 import sys
@@ -55,14 +56,10 @@ if __name__ == "__main__":
 	#then after that we determine what the program start time is
 	clientstarttime = time.time()
 
-	#opens the sockets
-	heartbeatsock = socket.socket( socket.AF_INET,	socket.SOCK_DGRAM )
-#	insock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#	insock.bind((ip, 1392))
 
 	#create the thread for the heartbeat
-	heartbeatthread = udp.heartbeat(2, "hb", ip, heartbeatsock)
-	listenthread = udp.udplisten(ip, 1392)
+	heartbeatthread = udp.heartbeat( ip )
+	listenthread = udp.udplisten( ip, 1392 )
 
 	heartbeatthread.start()
 
@@ -79,6 +76,14 @@ if __name__ == "__main__":
 
 		#Heartbeat function runs every 3 seconds this way.
 		if( idletime > 1200 ):
-			heartbeatthread.close()
-			print("Client timeout.")
-			exit(1)
+			heartbeatthread.pause()
+			close = input("Would you like to continue?[Y/N]")
+			while( (close.lower() != "n") & (close.lower() != "y")
+							& (close.lower() != "yes") & (close.lower() != "no") ):
+				close = input("Invalid input.\nWould you like to continue?[Y/N]")
+			if( (close.lower() == "n") | (close.lower() == "no") ):
+				print("Client timeout.")
+				os._exit(0)
+			else:
+				heartbeatthread.resume()
+				clientstarttime = time.time()
