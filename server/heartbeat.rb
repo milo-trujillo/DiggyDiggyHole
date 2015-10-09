@@ -59,7 +59,9 @@ module Heartbeat
 			update = $updates.pop
 			$heartLock.synchronize {
 				for client in $clients
-					u.send(update, 0, client[0], client[1])
+					host = client[0][0].to_s
+					port = client[0][1].to_i
+					u.send(update, 0, host, port)
 				end
 			}
 		end
