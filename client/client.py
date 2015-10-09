@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+import os.path
 import socket
 import time
 import sys
@@ -14,14 +17,45 @@ def heartbeat(UDP_IP):
 	sock.sendto( bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))
 	
 
+def initialize():
+	#first we want to see if there's a pre-existing config
+	if( os.path.isfile("prevconfig") ):
+		#we ask whether the user wants to use the previous config for the server
+		response = input("Would you like to use the previous server config? [Y/N]")
+
+		#if they don't put a Y or N in, we keep asking
+		while( ( response != "Y" ) & ( response != "N" ) ):
+			print("Invalid response, please enter Y or N.")
+			response = input("Would you like to use the previous server config? [Y/N]")
+		
+		if( response == "Y" ):
+			conffile = open("prevconfig","r")
+			ip = conffile.read()
+			conffile.close()
+			return ip
+			
+		elif( response == "N" ):
+			ip = input('Please enter server ip: ')
+			conffile = open("prevconfig","w")
+			conffile.write(ip)
+			conffile.close()
+			return ip
+		
+	#if there isn't one, we want to make one
+	else:
+		ip = input('Please enter server ip: ')
+		conffile = open("prevconfig","w")
+		conffile.write(ip)
+		conffile.close()
+		return ip
 
 
 #main()
 if __name__ == "__main__":
 
 	#we ask the user what ip they want to connect to
-	ip = input('Please enter ip: ')
-
+	ip = initialize()
+	print("Connecting to",ip + "...")
 	#then after that we determine what the program start time is
 	clientstarttime = time.time()
 
