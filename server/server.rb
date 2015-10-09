@@ -19,8 +19,11 @@ def handleInt
 	puts ""
 	puts "Saving state..."
 	Configuration.prepareState()
+	puts "State dir ready"
 	Clock.halt
+	puts "Clock halted"
 	Dwarves.saveState
+	puts "Dwarves saved"
 	puts "Quitting..."
 	exit(0)
 end
