@@ -5,15 +5,9 @@ import socket
 import time
 import sys
 import threading
+import udp
 
 
-def heartbeat(UDP_IP, sock):
-	#default port is 1392, "badum" is the heartbeat
-	UDP_PORT = 1392
-	MESSAGE = "badum"
-
-	#sends the message
-	sock.sendto( bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))
 	
 
 def initialize():
@@ -23,17 +17,19 @@ def initialize():
 		response = input("Would you like to use the previous server config? [Y/N]")
 
 		#if they don't put a Y or N in, we keep asking
-		while(	( response != "Y" ) & ( response != "N" ) & 
-						(	response != "y" ) & ( response != "n" )	):
+		while(	( response != "yes" ) & ( response.lower() != "no" ) & 
+						(	response.lower() != "y" ) & ( response.lower() != "n" )	):
 			print("Invalid response, please enter Y or N.")
 			response = input("Would you like to use the previous server config? [Y/N]")
 		
+		#if they want to use their previous config, we load that
 		if( response == "Y" ):
 			conffile = open("prevconfig","r")
 			ip = conffile.read()
 			conffile.close()
 			return ip
-			
+		
+		#otherwise we ask for a new ip to use
 		elif( response == "N" ):
 			ip = input('Please enter server ip: ')
 			conffile = open("prevconfig","w")
@@ -59,8 +55,9 @@ if __name__ == "__main__":
 	#then after that we determine what the program start time is
 	clientstarttime = time.time()
 
-	#opens the socket
+	#opens the sockets
 	heartbeatsock = socket.socket( socket.AF_INET,	socket.SOCK_DGRAM )
+	insock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 	while (1):
 
@@ -75,8 +72,7 @@ if __name__ == "__main__":
 
 		#Heartbeat function runs every 3 seconds this way.
 		if( ( (currenttime % 3 ) == 0 ) & ( idletime <= 1200) ):
-			heartbeat(ip, heartbeatsock)
+			udp.heartbeat(ip, heartbeatsock)
 		if( idletime > 1200 ):
 			print("Client timeout.")
 			exit(1)
-
