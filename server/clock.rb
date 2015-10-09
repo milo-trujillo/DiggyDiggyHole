@@ -31,7 +31,7 @@ module Clock
 
 				# Do whatever we need to do on new turns here
 				Heartbeat.fade
-				Heartbeat.addUpdate("Turn: " + $turn.to_s)
+				Heartbeat.addUpdate("Turn: " + $turns.to_s)
 
 				# Turn counter goes up!
 				$turns += 1
