@@ -33,10 +33,12 @@ class heartbeat(threading.Thread):
 		print("Heart beating...")
 		while(self.stayopen):
 			if( self.starttime % 3 == 0 ):
-				sock.sendto( bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))
+				self.sock.sendto( bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))
 		print("Heart stopped.")
+		return
 	def close(self):
 		self.stayopen = 0
+		return
 
 class udplisten(threading.Thread):
 	def __init__(self, UDP_IP, UDP_PORT):
@@ -53,9 +55,11 @@ class udplisten(threading.Thread):
 			(data, addr) = self.sock.recvfrom(1024)
 			print(data)
 		print("No longer listening.")
+		return
 
 	def close(self):
 		self.stayopen = 0
+		return
 
 
 def udpsend(UDP_IP, UDP_PORT, MESSAGE, outsock):

@@ -64,32 +64,21 @@ if __name__ == "__main__":
 	heartbeatthread = udp.heartbeat(2, "hb", ip, heartbeatsock)
 	listenthread = udp.udplisten(ip, 1392)
 
-	threads = []
-	threads.append(heartbeatthread)
-	threads.append(listenthread)
+	heartbeatthread.start()
 
-	#try/except block to catch keyboard interrupt and properly close threads
-	try:
-		heartbeatthread.start()
-#		listenthread.start()
+	while (1):
 
-		while (1):
+		#because it is used multiple times, there's no reason to continue
+		#to call the time function, so instead it is just stored into a
+		#variable at the beginning of the while loop
+		currenttime = time.time()
 
-			#because it is used multiple times, there's no reason to continue
-			#to call the time function, so instead it is just stored into a
-			#variable at the beginning of the while loop
-			currenttime = time.time()
+		#this will be replaced eventually, and there'll be some way to
+		#determine user activity
+		idletime = currenttime - clientstarttime
 
-			#this will be replaced eventually, and there'll be some way to
-			#determine user activity
-			idletime = currenttime - clientstarttime
-
-			#Heartbeat function runs every 3 seconds this way.
-			if( idletime > 1200 ):
-				heartbeatthread.close()
-				print("Client timeout.")
-				exit(1)
-	except KeyboardInterrupt:
-#		listenthread.close()
-		heartbeatthread.close()
-		exit(1)
+		#Heartbeat function runs every 3 seconds this way.
+		if( idletime > 1200 ):
+			heartbeatthread.close()
+			print("Client timeout.")
+			exit(1)
