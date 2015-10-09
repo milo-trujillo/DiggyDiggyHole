@@ -14,9 +14,11 @@ module Clock
 	$timeLock = Mutex.new
 	$timeRunning = false
 	$turns = 0
+	$tickThread = nil
 
 	# This function never returns and should be called in a new thread
 	def Clock.tick
+		$tickThread = Thread.current
 		puts "Tick tock..."
 		while( true )
 			sleep Configuration::TurnDuration
@@ -29,6 +31,7 @@ module Clock
 
 				# Do whatever we need to do on new turns here
 				Heartbeat.fade
+				Heartbeat.addUpdate("Turn: " + $turn.to_s)
 
 				# Turn counter goes up!
 				$turns += 1
@@ -68,10 +71,12 @@ module Clock
 	end
 
 	def Clock.halt
+		$tickThread.exit # Kill the clock thread
 		f = File.open(Configuration::ClockFilePath, "w")
 		$timeLock.synchronize {
 			f.puts($turns)
 			$timeRunning = false
 		}
+		f.close
 	end
 end
