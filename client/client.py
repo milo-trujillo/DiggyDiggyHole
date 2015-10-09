@@ -57,22 +57,39 @@ if __name__ == "__main__":
 
 	#opens the sockets
 	heartbeatsock = socket.socket( socket.AF_INET,	socket.SOCK_DGRAM )
-	insock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#	insock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#	insock.bind((ip, 1392))
 
-	while (1):
+	#create the thread for the heartbeat
+	heartbeatthread = udp.heartbeat(2, "hb", ip, heartbeatsock)
+	listenthread = udp.udplisten(ip, 1392)
 
-		#because it is used multiple times, there's no reason to continue
-		#to call the time function, so instead it is just stored into a
-		#variable at the beginning of the while loop
-		currenttime = time.time()
+	threads = []
+	threads.append(heartbeatthread)
+	threads.append(listenthread)
 
-		#this will be replaced eventually, and there'll be some way to
-		#determine user activity
-		idletime = currenttime - clientstarttime
+	#try/except block to catch keyboard interrupt and properly close threads
+	try:
+		heartbeatthread.start()
+#		listenthread.start()
 
-		#Heartbeat function runs every 3 seconds this way.
-		if( ( (currenttime % 3 ) == 0 ) & ( idletime <= 1200) ):
-			udp.heartbeat(ip, heartbeatsock)
-		if( idletime > 1200 ):
-			print("Client timeout.")
-			exit(1)
+		while (1):
+
+			#because it is used multiple times, there's no reason to continue
+			#to call the time function, so instead it is just stored into a
+			#variable at the beginning of the while loop
+			currenttime = time.time()
+
+			#this will be replaced eventually, and there'll be some way to
+			#determine user activity
+			idletime = currenttime - clientstarttime
+
+			#Heartbeat function runs every 3 seconds this way.
+			if( idletime > 1200 ):
+				heartbeatthread.close()
+				print("Client timeout.")
+				exit(1)
+	except KeyboardInterrupt:
+#		listenthread.close()
+		heartbeatthread.close()
+		exit(1)
