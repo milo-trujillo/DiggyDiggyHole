@@ -42,6 +42,7 @@ if $0 == __FILE__
 	# Start off server processes
 	Thread.start do Clock.tick end # Time keeps on ticking...
 	Thread.start do Heartbeat.updateClients end
+	Thread.start do Heartbeat.handleBeats end
 	for x in (0 .. Configuration::MessageWorkers - 1)
 		Thread.start do Messages.handle end
 	end

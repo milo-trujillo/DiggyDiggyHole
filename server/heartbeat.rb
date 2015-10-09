@@ -12,29 +12,49 @@ require_relative 'config'
 
 	One thread should be dedicated to Heartbeat.updateClients, which will send
 	update messages about the game to all connected clients.
+
+	One thread should be dedicated to Heartbeat.handleBeats, which will update
+	the list of clients appropriately as new heartbeats come in.
 =end
 
 module Heartbeat
 	$clients = Hash.new
 	$heartLock = Mutex.new
+	$heartSizeLock = Mutex.new
 	$updates = Queue.new
+	$newBeats = Queue.new
+	$size = 0
 
 	# Returns the number of clients
 	def Heartbeat.getClients
-		$heartLock.synchronize {
-			return $clients.size
+		$heartSizeLock.synchronize {
+			return $size
 		}
+	end
+
+	def Heartbeat.handleBeats()
+		while(true)
+			host = $newBeats.pop
+			$heartLock.synchronize {
+				start = false
+				if( $clients.empty? )
+					start = true
+				end
+				puts "\tReceived heartbeat from " + host[0].to_s
+				$clients[host] = 0
+				$heartSizeLock.synchronize {
+					$size += 1
+				}
+				if( start )
+					Clock.start
+				end
+			}
+		end
 	end
 
 	# This should be called each time we receive a heartbeat message
 	def Heartbeat.heardFrom(host)
-		$heartLock.synchronize {
-			puts "Heard from: " + host[0].to_s
-			$clients[host] = 0
-			if( $clients.size == 1 )
-				Clock.start
-			end
-		}
+		$newBeats << host
 	end
 
 	# This is called once per turn
@@ -42,6 +62,9 @@ module Heartbeat
 		$heartLock.synchronize {
 			$clients.each_key {|host| $clients[host] += 1}
 			$clients.delete_if {|host, time| time >= Configuration::ClientTimeout}
+			$heartSizeLock.synchronize {
+				$size = $clients.size
+			}
 		}
 	end
 
@@ -57,13 +80,15 @@ module Heartbeat
 		puts "Ready to send updates."
 		while(true)
 			update = $updates.pop
+			clients = nil
 			$heartLock.synchronize {
-				for client in $clients
-					host = client[0][0].to_s
-					port = client[0][1].to_i
-					u.send(update, 0, host, port)
-				end
+				clients = $clients.clone # Make a shallow copy
 			}
+			for c in clients
+				host = c[0][0].to_s
+				port = c[0][1].to_i
+				u.send(update, 0, host, port)
+			end
 		end
 	end
 end
