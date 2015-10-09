@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
-require 'socket'
 require 'thread'
 
 require_relative 'config'
 require_relative 'clock'
 require_relative 'heartbeat'
 require_relative 'dwarves'
+require_relative 'messages'
 
 SIGNAL_QUEUE = []
 [:INT, :TERM].each do |signal|
@@ -39,6 +39,10 @@ if $0 == __FILE__
 	# Start off server processes
 	Thread.start do Clock.tick end # Time keeps on ticking...
 	Thread.start do Heartbeat.updateClients end
+	for x in (0 .. Configuration::MessageWorkers - 1)
+		Thread.start do Messages.handle end
+	end
+	Thread.start do Messages.listen end
 
 	# At this point the main thread is really just here so that
 	# we're attached to a terminal for logging, and so we can

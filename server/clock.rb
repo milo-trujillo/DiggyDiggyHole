@@ -32,6 +32,9 @@ module Clock
 
 				# Turn counter goes up!
 				$turns += 1
+				if( $turns % 5 == 0 )
+					puts ("Turn: " + $turns.to_s)
+				end
 			}
 		end
 	end
@@ -59,7 +62,7 @@ module Clock
 	def Clock.loadState
 		f = File.open(Configuration::ClockFilePath, "r")
 		$timeLock.synchronize {
-			$turns = f.gets
+			$turns = f.gets.to_i
 		}
 		f.close
 	end
