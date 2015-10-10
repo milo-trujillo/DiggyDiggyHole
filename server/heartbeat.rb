@@ -40,7 +40,6 @@ module Heartbeat
 				if( $clients.empty? )
 					start = true
 				end
-				puts "\tReceived heartbeat from " + host[0].to_s
 				$clients[host] = 0
 				$heartSizeLock.synchronize {
 					$size += 1
@@ -87,6 +86,8 @@ module Heartbeat
 			for c in clients
 				host = c[0][0].to_s
 				port = c[0][1].to_i
+				# For debugging
+				puts "Sending to " + host + " on port " + port.to_s
 				u.send(update, 0, host, port)
 			end
 		end
