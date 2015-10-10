@@ -7,6 +7,7 @@ require_relative 'clock'
 require_relative 'heartbeat'
 require_relative 'dwarves'
 require_relative 'messages'
+require_relative 'map'
 
 SIGNAL_QUEUE = []
 [:INT, :TERM].each do |signal|
@@ -24,6 +25,8 @@ def handleInt
 	puts "Clock halted"
 	Dwarves.saveState
 	puts "Dwarves saved"
+	Map.saveState
+	puts "Mine saved"
 	puts "Quitting..."
 	exit(0)
 end
@@ -34,8 +37,10 @@ if $0 == __FILE__
 		puts "Found existing hole..."
 		Clock.loadState
 		Dwarves.loadState
+		Map.loadState
 	else
 		puts "Digging a new hole..."
+		Map.genWorld
 		Dwarves.spawn(Configuration::DefaultDwarves)
 	end
 

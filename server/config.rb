@@ -11,6 +11,11 @@ module Configuration
 	# All constants about size or quantity of objects
 	DefaultDwarves = 7
 
+	# All constants regarding board dimensions and placement
+	BoardWidth = 100
+	BoardLength = 100
+	BoardHeight = 150
+
 	# All timers or time related constants
 	TurnDuration = 1        # How many seconds per turn
 	ClientTimeout = 10      # How many seconds until client is purged
@@ -27,7 +32,8 @@ module Configuration
 	StateDir = "./state"
 	ClockFilePath = StateDir + "/time.db"
 	DwarfFilePath = StateDir + "/dwarves.db"
-	StateFiles = [ClockFilePath, DwarfFilePath]
+	MapFilePath = StateDir + "/map.db"
+	StateFiles = [ClockFilePath, DwarfFilePath, MapFilePath]
 
 	###
 	### Everything below this point is for the handling of configuration and
