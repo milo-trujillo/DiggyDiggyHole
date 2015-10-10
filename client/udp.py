@@ -1,6 +1,7 @@
 import socket
 import threading
 import time
+import select
 
 class udpoutthread (threading.Thread):
 	def __init__(self, threadID, name, ip, port, MESSAGE, sock):
@@ -18,11 +19,10 @@ class udpoutthread (threading.Thread):
 		print("Closing UDP thread...")
 
 class heartbeat(threading.Thread):
-	def __init__(self, UDP_IP):
+	def __init__(self, ip, sock):
 		threading.Thread.__init__(self)
-		self.UDP_IP = UDP_IP
-		self.sock = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )
-		self.UDP_PORT = 1392
+		self.server = (ip, 1392)
+		self.sock = sock
 		self.MESSAGE = "badum"
 		self.paused = True
 		self.state = threading.Condition()
@@ -37,7 +37,7 @@ class heartbeat(threading.Thread):
 					self.state.wait()
 			self.time = int(time.time())
 			if( (self.time % 3 == 0) & (self.time != self.lasttime) ):
-				udpsend( self.UDP_IP, self.UDP_PORT, self.MESSAGE, self.sock )
+				self.sock.sendto( bytes(self.MESSAGE, "utf-8"), (self.server))
 				self.lasttime = self.time
 
 	def pause(self):
@@ -53,20 +53,15 @@ class heartbeat(threading.Thread):
 			print("Heart beating...")
 
 class udplisten(threading.Thread):
-	def __init__(self, UDP_IP, UDP_PORT):
+	def __init__(self, sock):
 		threading.Thread.__init__(self)
-		self.UDP_IP = UDP_IP
-		self.UDP_PORT = UDP_PORT
-		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		self.stayopen = 1
+		self.sock = sock
 
 	def run(self):
 		print("Listening...")
-		self.sock.bind(("", self.UDP_PORT))
 		while True:
-			(data, addr) = self.sock.recvfrom(1024)
-			print(data)
-		return
+			yoooo = self.sock.recvfrom(1024)
+			print(yoooo[0])
 
 def udpsend(UDP_IP, UDP_PORT, MESSAGE, outsock):
 	outsock.sendto( bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))
