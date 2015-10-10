@@ -13,8 +13,9 @@ import udp
 	
 
 def initialize():
+	conffilename = "prevconfig.conf"
 	#first we want to see if there's a pre-existing config
-	if( os.path.isfile("prevconfig") ):
+	if( os.path.isfile(conffilename) ):
 		#we ask whether the user wants to use the previous config for the server
 		response = input("Would you like to use the previous server config? [Y/N]")
 
@@ -26,7 +27,7 @@ def initialize():
 		
 		#if they want to use their previous config, we load that
 		if( ( response.lower() == "y") | (response.lower() == "yes" ) ):
-			conffile = open("prevconfig","r")
+			conffile = open(conffilename,"r")
 			ip = conffile.read()
 			conffile.close()
 			return ip
@@ -34,7 +35,7 @@ def initialize():
 		#otherwise we ask for a new ip to use
 		elif( ( response.lower() == "n" ) | ( response.lower() == "no" ) ):
 			ip = input('Please enter server ip: ')
-			conffile = open("prevconfig","w")
+			conffile = open(conffilename,"w")
 			conffile.write(ip)
 			conffile.close()
 			return ip
@@ -42,7 +43,7 @@ def initialize():
 	#if there isn't one, we want to make one
 	else:
 		ip = input('Please enter server ip: ')
-		conffile = open("prevconfig","w")
+		conffile = open(conffilename,"w")
 		conffile.write(ip)
 		conffile.close()
 		return ip
