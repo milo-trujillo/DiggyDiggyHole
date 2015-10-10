@@ -1,3 +1,4 @@
 .*.swp
 *.db
 *.conf
+__pycache__
