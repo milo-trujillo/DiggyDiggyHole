@@ -69,8 +69,8 @@ if __name__ == "__main__":
 	listenthread.start()
 
 	while (1):
-		meme = UDPsock.recvfrom(1024)
-		print(meme[0])
+#		meme = UDPsock.recvfrom(1024)
+#		print(meme[0])
 		#because it is used multiple times, there's no reason to continue
 		#to call the time function, so instead it is just stored into a
 		#variable at the beginning of the while loop
