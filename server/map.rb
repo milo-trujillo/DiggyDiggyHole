@@ -39,7 +39,7 @@ module Map
 	def Map.loadState
 		f = File.open(Configuration::MapFilePath, "r")
 		$mapLock.synchronize {
-			$world = Zlib::Inflate.inflate(Marshal.load(f.read))
+			$world = Marshal.load(Zlib::Inflate.inflate(f.read))
 		}
 		f.close
 	end
