@@ -60,8 +60,8 @@ class udplisten(threading.Thread):
 	def run(self):
 		print("Listening...")
 		while True:
-			yoooo = self.sock.recvfrom(1024)
-			print(yoooo[0])
+			turn = self.sock.recvfrom(1024)
+			print(turn[0])
 
 def udpsend(UDP_IP, UDP_PORT, MESSAGE, outsock):
 	outsock.sendto( bytes(MESSAGE, "utf-8"), (UDP_IP, UDP_PORT))
